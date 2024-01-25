@@ -1,54 +1,123 @@
 const Order = require("./assignment1Order");
 
 const OrderState = Object.freeze({
-    WELCOMING:   Symbol("welcoming"),
-    SIZE:   Symbol("size"),
-    COLOUR:   Symbol("Colour"),
-    CLEANER:  Symbol("Cleaner")
+    WELCOMING:   Symbol("Welcoming"),
+    TYPE:   Symbol("Type"),
+    SIZE:   Symbol("Colour"),
+    FRIES:  Symbol("Fries"),
+    FTYPE:  Symbol("FType"),
+    RECEIPT: Symbol("Receipt")
 });
 
 module.exports = class BagsOrder extends Order{
     constructor(){
         super();
         this.stateCur = OrderState.WELCOMING;
+        this.sType = "";
         this.sSize = "";
-        this.sColour = "";
-        this.sCleaner = "";
-        this.sItem = "backbag";
+        this.sFries = "";
+        this.sFType = "";
+        this.price = 0;
     }
     handleInput(sInput){
         let aReturn = [];
         switch(this.stateCur){
             case OrderState.WELCOMING:
+
+                this.stateCur = OrderState.TYPE;
+                aReturn.push("Welcome to Conestoga's Food Court!");
+                aReturn.push("Our menu is comprised of shawarma, sandwich, salad")
+                aReturn.push("What item would you like?");
+                break;
+
+            case OrderState.TYPE:
+
                 this.stateCur = OrderState.SIZE;
-                aReturn.push("Welcome to Conestoga's Bags.");
-                aReturn.push("What size bag would you like?");
+                this.sType = sInput.toLowerCase();
+
+                aReturn.push(`For your ${sInput}, what size would you like (Small, Medium, Large)?`);
                 break;
+
             case OrderState.SIZE:
-                this.stateCur = OrderState.COLOUR
-                this.sSize = sInput;
-                aReturn.push("What Colour would you like?");
+
+                this.stateCur = OrderState.FRIES;
+                this.sSize = sInput.toLowerCase();
+
+                if (this.sType == "shawarma")
+                {
+                    if (this.sSize == "small")
+                        this.price += 4.99;
+                    else if (this.sSize == "medium")
+                        this.price += 6.99;
+                    else if (this.sSize == "large")
+                        this.price += 8.99;
+                    
+                }
+                else if (this.sType == "sandwich")
+                {
+
+                    if (this.sSize == "small")
+                        this.price += 3.99;
+                    else if (this.sSize == "medium")
+                        this.price += 4.99;
+                    else if (this.sSize == "large")
+                        this.price += 5.99;
+
+                }
+                else if (this.sType == "salad")
+                {
+                    if (this.sSize == "small")
+                        this.price += 6.99;
+                    else if (this.sSize == "medium")
+                        this.price += 7.99;
+                    else if (this.sSize == "large")
+                        this.price += 8.99;
+                }
+
+                aReturn.push("Would you like to add fries with that (Yes / No)?");
                 break;
-            case OrderState.COLOUR:
-                this.stateCur = OrderState.CLEANER
-                this.sColour = sInput;
-                aReturn.push("Would you like Cleaner with that?");
-                break;
-            case OrderState.CLEANER:
+
+            case OrderState.FRIES:
+
+                this.sFries = sInput.toLowerCase();
+
+                if(this.sFries != "no"){
+                    this.stateCur = OrderState.RECEIPT;
+                    this.price += 2.99;
+                    aReturn.push(`For your fries, what type would you like (Cajun, Regular, Curly)?`);
+                    break;
+                }
+
+            case OrderState.RECEIPT:
+
+                if (this.sFries != "no")
+                {
+                    this.sFType = sInput.toLowerCase();
+
+                    if (this.sFType == "regular")
+                        this.price += 1.99;
+                    else if (this.sFType == "cajun")
+                        this.price += 2.99;
+                    else if (this.sFType == "curly")
+                        this.price += 3.99;
+                }
+
+                this.price = (this.price * 1.13).toFixed(2); 
+
                 this.isDone(true);
-                if(sInput.toLowerCase() != "no"){
-                    this.sCleaner = sInput;
-                }
-                aReturn.push("Thank-you for your order of");
-                aReturn.push(`${this.sSize} ${this.sItem} with ${this.sColour}`);
-                if(this.sCleaner){
-                    aReturn.push(this.sCleaner);
-                }
-                let d = new Date(); 
-                d.setMinutes(d.getMinutes() + 20);
-                aReturn.push(`Please pick it up at ${d.toTimeString()}`);
+            
+                aReturn.push("Thank you for your order of:");
+                aReturn.push(`A ${this.sSize} ${this.sType}`);
+
+                if (this.sFries != "no") 
+                    aReturn.push(`with a side of ${this.sFType} fries`);
+
+                aReturn.push(`Your meal in total costs: $${this.price}`);
+
                 break;
+
         }
+
         return aReturn;
     }
 }
