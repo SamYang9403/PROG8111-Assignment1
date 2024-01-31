@@ -3,7 +3,8 @@ const Order = require("./assignment1Order");
 const OrderState = Object.freeze({
     WELCOMING:   Symbol("Welcoming"),
     TYPE:   Symbol("Type"),
-    SIZE:   Symbol("Colour"),
+    SIZE:   Symbol("Size"),
+    TOPPINGS: Symbol("Toppings"),
     FRIES:  Symbol("Fries"),
     FTYPE:  Symbol("FType"),
     RECEIPT: Symbol("Receipt")
@@ -15,6 +16,7 @@ module.exports = class BagsOrder extends Order{
         this.stateCur = OrderState.WELCOMING;
         this.sType = "";
         this.sSize = "";
+        this.sToppings = "";
         this.sFries = "";
         this.sFType = "";
         this.price = 0;
@@ -40,7 +42,7 @@ module.exports = class BagsOrder extends Order{
 
             case OrderState.SIZE:
 
-                this.stateCur = OrderState.FRIES;
+                this.stateCur = OrderState.TOPPINGS;
                 this.sSize = sInput.toLowerCase();
 
                 if (this.sType == "shawarma")
@@ -73,6 +75,14 @@ module.exports = class BagsOrder extends Order{
                     else if (this.sSize == "large")
                         this.price += 8.99;
                 }
+
+                aReturn.push(`What toppings would you like on your ${this.sType}?`);
+                break;
+
+            case OrderState.TOPPINGS:
+
+                this.sToppings = sInput.toLowerCase();
+                this.stateCur = OrderState.FRIES;
 
                 aReturn.push("Would you like to add fries with that (Yes / No)?");
                 break;
@@ -107,7 +117,7 @@ module.exports = class BagsOrder extends Order{
                 this.isDone(true);
             
                 aReturn.push("Thank you for your order of:");
-                aReturn.push(`A ${this.sSize} ${this.sType}`);
+                aReturn.push(`A ${this.sSize} ${this.sType} with ${this.sToppings.toLowerCase()}`);
 
                 if (this.sFries != "no") 
                     aReturn.push(`with a side of ${this.sFType} fries`);
